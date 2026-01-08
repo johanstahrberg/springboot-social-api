@@ -1,0 +1,12 @@
+POST http://localhost:8080/users
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "email": "admin@test.se",
+  "password": "password123",
+  "role": "ADMIN",
+  "displayName": "Admin",
+  "bio": "First admin user",
+  "profileImagePath": null
+}
