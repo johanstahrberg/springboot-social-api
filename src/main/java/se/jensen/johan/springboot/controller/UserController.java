@@ -24,7 +24,7 @@ public class UserController {
         this.postService = postService;
     }
 
-    // ✅ ADMIN ONLY
+
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
@@ -32,7 +32,7 @@ public class UserController {
         return ResponseEntity.ok().body(allUsers);
     }
 
-    // ✅ ADMIN ONLY
+
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getUser(@PathVariable Long id) {
@@ -40,7 +40,7 @@ public class UserController {
         return ResponseEntity.ok().body(userResponseDto);
     }
 
-    // ✅ Inloggad (permitAll i SecurityConfig låter denna gå utan login)
+
     @PostMapping
     public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody UserRequestDto request) {
         UserResponseDto created = userService.addUser(request);
@@ -68,7 +68,7 @@ public class UserController {
         return ResponseEntity.ok().body(response);
     }
 
-    // ✅ “Nuvarande användare” – bara inloggad användare
+
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
     public ResponseEntity<UserResponseDto> getMe(Authentication authentication) {

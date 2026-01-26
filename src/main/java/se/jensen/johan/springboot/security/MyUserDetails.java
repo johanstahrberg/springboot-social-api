@@ -19,7 +19,7 @@ public class MyUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // role antas vara "USER" eller "ADMIN"
+
         return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
     }
 

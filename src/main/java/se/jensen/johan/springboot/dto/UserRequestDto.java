@@ -29,6 +29,6 @@ public record UserRequestDto(
         @Size(max = 200, message = "Bio får max vara 200 tecken.")
         String bio,
 
-        String profileImagePath // kan vara null enligt övning
+        String profileImagePath
 ) {
 }

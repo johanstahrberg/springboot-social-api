@@ -58,7 +58,6 @@ public class User {
         this.profileImagePath = profileImagePath;
     }
 
-    // Getters och setters
 
     public Long getId() {
         return id;

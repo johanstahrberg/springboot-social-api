@@ -34,7 +34,7 @@ public class PostService {
         );
     }
 
-    // ✅ Steg 6: createPost(Long userId, PostRequestDTO dto)
+
     public PostResponseDto createPost(Long userId, PostRequestDto postDto) {
 
         User user = userRepository.findById(userId)
@@ -67,10 +67,6 @@ public class PostService {
 
         existing.setText(dto.text());
 
-        // (valfritt) om du vill kunna byta ägare på en post:
-        // User user = userRepository.findById(dto.userId())
-        //         .orElseThrow(() -> new NoSuchElementException("User not found with id " + dto.userId()));
-        // existing.setUser(user);
 
         Post updated = postRepository.save(existing);
         return toResponse(updated);

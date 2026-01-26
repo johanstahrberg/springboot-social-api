@@ -19,20 +19,20 @@ public class PostController {
         this.postService = postService;
     }
 
-    // READ - GET /posts
+
     @GetMapping
     public ResponseEntity<List<PostResponseDto>> getAll() {
         return ResponseEntity.ok(postService.findAll());
     }
 
-    // READ - GET /posts/{id}
+
     @GetMapping("/{id}")
     public ResponseEntity<PostResponseDto> getOne(@PathVariable Long id) {
         PostResponseDto post = postService.findById(id); // kastar exception om saknas
         return ResponseEntity.ok(post);
     }
 
-    // UPDATE - PUT /posts/{id}
+
     @PutMapping("/{id}")
     public ResponseEntity<PostResponseDto> update(
             @PathVariable Long id,
@@ -42,7 +42,7 @@ public class PostController {
         return ResponseEntity.ok(updated);
     }
 
-    // DELETE - DELETE /posts/{id}
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         postService.delete(id); // void + kastar exception om saknas

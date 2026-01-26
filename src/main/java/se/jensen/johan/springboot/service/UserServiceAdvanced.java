@@ -22,7 +22,7 @@ public class UserServiceAdvanced {
         this.userRepository = userRepository;
     }
 
-    // Konvertera entity → DTO
+
     private UserResponseDto toResponse(User user) {
         return new UserResponseDto(
                 user.getId(),
@@ -35,7 +35,7 @@ public class UserServiceAdvanced {
         );
     }
 
-    // Skapa user
+
     public UserResponseDto create(UserRequestDto request) {
         User user = new User(
                 null,
@@ -52,21 +52,21 @@ public class UserServiceAdvanced {
         return toResponse(saved);
     }
 
-    // Hämta alla
+
     public List<UserResponseDto> findAll() {
         return userRepository.findAll().stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-    // Hämta en
+
     public UserResponseDto findById(Long id) {
         return userRepository.findById(id)
                 .map(this::toResponse)
                 .orElse(null);
     }
 
-    // Uppdatera
+
     public UserResponseDto update(Long id, UserRequestDto request) {
 
         return userRepository.findById(id)
@@ -87,7 +87,7 @@ public class UserServiceAdvanced {
                 .orElse(null);
     }
 
-    // Ta bort
+
     public boolean delete(Long id) {
         if (!userRepository.existsById(id)) {
             return false;

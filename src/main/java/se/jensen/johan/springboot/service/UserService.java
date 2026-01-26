@@ -76,9 +76,7 @@ public class UserService {
         return se.jensen.johan.springboot.mapper.userMapper.toDto(opt.get());
     }
 
-    /* =========================
-       UPDATE
-       ========================= */
+
     public UserResponseDto update(Long id, UserRequestDto dto) {
 
         User user = userRepository.findById(id)
@@ -98,9 +96,7 @@ public class UserService {
         return se.jensen.johan.springboot.mapper.userMapper.toDto(saved);
     }
 
-    /* =========================
-       DELETE
-       ========================= */
+
     public void delete(Long id) {
 
         User user = userRepository.findById(id)
@@ -111,9 +107,7 @@ public class UserService {
         userRepository.deleteById(user.getId());
     }
 
-    /* =========================
-       USER WITH POSTS (JOIN FETCH)
-       ========================= */
+
     public UserWithPostsResponseDto getUserWithPosts(Long id) {
 
         User user = userRepository.findUserWithPosts(id)
@@ -135,9 +129,7 @@ public class UserService {
         return new UserWithPostsResponseDto(userDto, posts);
     }
 
-    /* =========================
-   READ – findByUsername
-   ========================= */
+
     public UserResponseDto findByUsername(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NoSuchElementException("Ingen user i databasen med username: " + username));

@@ -13,19 +13,19 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Denna fångar alla valideringsfel från @Valid (@NotBlank, @Size, osv.)
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<List<String>> handleValidationException(MethodArgumentNotValidException ex) {
 
         List<String> errors = new ArrayList<>();
 
         for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
-            // Exempel: "text: Text får inte vara tom."
+
             String message = fieldError.getField() + ": " + fieldError.getDefaultMessage();
             errors.add(message);
         }
 
-        // 400 Bad Request + lista av felmeddelanden
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 }

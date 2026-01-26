@@ -13,10 +13,7 @@ import java.util.NoSuchElementException;
 @RestControllerAdvice
 public class GlobalExEasy {
 
-    /**
-     * Hanterar @Valid-fel (valideringsfel)
-     * Returnerar 400 Bad Request med fält → felmeddelande
-     */
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationErrors(
             MethodArgumentNotValidException ex) {
@@ -34,10 +31,7 @@ public class GlobalExEasy {
                 .body(errors);
     }
 
-    /**
-     * Hanterar när något inte hittas (t.ex. user id saknas)
-     * Returnerar 404 Not Found
-     */
+
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<String> handleNoSuchElementException(
             NoSuchElementException ex) {
