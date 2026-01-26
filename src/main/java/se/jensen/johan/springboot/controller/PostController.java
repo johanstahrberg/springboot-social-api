@@ -2,6 +2,7 @@ package se.jensen.johan.springboot.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import se.jensen.johan.springboot.dto.PostRequestDto;
 import se.jensen.johan.springboot.dto.PostResponseDto;
@@ -19,33 +20,46 @@ public class PostController {
         this.postService = postService;
     }
 
-    // READ - GET /posts
+
+    @PostMapping
+    public ResponseEntity<PostResponseDto> create(
+            Authentication auth,
+            @Valid @RequestBody PostRequestDto request) {
+
+        PostResponseDto created = postService.createPost(auth, request);
+        return ResponseEntity.ok(created);
+    }
+
+
     @GetMapping
     public ResponseEntity<List<PostResponseDto>> getAll() {
         return ResponseEntity.ok(postService.findAll());
     }
 
-    // READ - GET /posts/{id}
+
     @GetMapping("/{id}")
     public ResponseEntity<PostResponseDto> getOne(@PathVariable Long id) {
-        PostResponseDto post = postService.findById(id); // kastar exception om saknas
-        return ResponseEntity.ok(post);
+        return ResponseEntity.ok(postService.findById(id));
     }
 
-    // UPDATE - PUT /posts/{id}
+
     @PutMapping("/{id}")
     public ResponseEntity<PostResponseDto> update(
             @PathVariable Long id,
+            Authentication auth,
             @Valid @RequestBody PostRequestDto request) {
 
-        PostResponseDto updated = postService.update(id, request); // kastar exception om saknas
+        PostResponseDto updated = postService.update(id, auth, request);
         return ResponseEntity.ok(updated);
     }
 
-    // DELETE - DELETE /posts/{id}
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        postService.delete(id); // void + kastar exception om saknas
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            Authentication auth) {
+
+        postService.delete(id, auth);
         return ResponseEntity.noContent().build();
     }
 }
