@@ -6,7 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import se.jensen.johan.springboot.dto.*;
+import se.jensen.johan.springboot.dto.UserRequestDto;
+import se.jensen.johan.springboot.dto.UserResponseDto;
+import se.jensen.johan.springboot.dto.UserWithPostsResponseDto;
 import se.jensen.johan.springboot.service.PostService;
 import se.jensen.johan.springboot.service.UserService;
 
@@ -25,7 +27,7 @@ public class UserController {
     }
 
     // ✅ ADMIN ONLY
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
         List<UserResponseDto> allUsers = userService.getAllUsers();
@@ -33,7 +35,7 @@ public class UserController {
     }
 
     // ✅ ADMIN ONLY
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getUser(@PathVariable Long id) {
         UserResponseDto userResponseDto = userService.getById(id);
@@ -77,12 +79,5 @@ public class UserController {
         return ResponseEntity.ok().body(me);
     }
 
-    @PostMapping("/{userId}/posts")
-    public ResponseEntity<PostResponseDto> createPostForUser(
-            @PathVariable Long userId,
-            @Valid @RequestBody PostRequestDto request
-    ) {
-        PostResponseDto responseDto = postService.createPost(userId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
-    }
+
 }

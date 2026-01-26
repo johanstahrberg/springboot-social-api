@@ -1,5 +1,7 @@
 package se.jensen.johan.springboot.service;
 
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.jensen.johan.springboot.dto.PostRequestDto;
@@ -34,11 +36,24 @@ public class PostService {
         );
     }
 
-    // ✅ Steg 6: createPost(Long userId, PostRequestDTO dto)
-    public PostResponseDto createPost(Long userId, PostRequestDto postDto) {
+    private User getCurrentUser(Authentication auth) {
+        // Viktigt: detta kräver att du har UserRepository.findByUsername(...)
+        return userRepository.findByUsername(auth.getName())
+                .orElseThrow(() -> new NoSuchElementException("User not found: " + auth.getName()));
+    }
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User not found with id " + userId));
+    private void assertOwner(Post post, Authentication auth) {
+        String currentUsername = auth.getName();
+        String postOwnerUsername = post.getUser().getUsername(); // kräver getUsername() i User
+
+        if (!postOwnerUsername.equals(currentUsername)) {
+            throw new AccessDeniedException("You can only modify your own posts");
+        }
+    }
+
+    // CREATE - skapa post för inloggad användare
+    public PostResponseDto createPost(Authentication auth, PostRequestDto postDto) {
+        User user = getCurrentUser(auth);
 
         Post post = new Post();
         post.setText(postDto.text());
@@ -49,8 +64,16 @@ public class PostService {
         return toResponse(savedPost);
     }
 
+    // Global feed - nyast först
     public List<PostResponseDto> findAll() {
-        return postRepository.findAll().stream()
+        return postRepository.findAllByOrderByCreatedAtDesc().stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    // User wall - nyast först
+    public List<PostResponseDto> findWall(Long userId) {
+        return postRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
                 .map(this::toResponse)
                 .toList();
     }
@@ -61,24 +84,24 @@ public class PostService {
                 .orElseThrow(() -> new NoSuchElementException("Post not found with id " + id));
     }
 
-    public PostResponseDto update(Long id, PostRequestDto dto) {
+    // UPDATE - endast ägaren
+    public PostResponseDto update(Long id, Authentication auth, PostRequestDto dto) {
         Post existing = postRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Post not found with id " + id));
 
+        assertOwner(existing, auth);
+
         existing.setText(dto.text());
-
-        // (valfritt) om du vill kunna byta ägare på en post:
-        // User user = userRepository.findById(dto.userId())
-        //         .orElseThrow(() -> new NoSuchElementException("User not found with id " + dto.userId()));
-        // existing.setUser(user);
-
         Post updated = postRepository.save(existing);
         return toResponse(updated);
     }
 
-    public void delete(Long id) {
+    // DELETE - endast ägaren
+    public void delete(Long id, Authentication auth) {
         Post existing = postRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Post not found with id " + id));
+
+        assertOwner(existing, auth);
 
         postRepository.delete(existing);
     }
