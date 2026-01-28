@@ -1,29 +1,39 @@
 # Spring Boot Social API
 
-Backend-API för ett enkelt socialt flöde.
-Projektarbete (individanpassat) – Jensen YH.
+Detta är backend-delen av projektarbetet i kursen.
+Projektet är individanpassat och jag har arbetat själv, men följt ett GitHub-arbetsflöde som vid grupparbete.
 
-## Tech stack
+Frontend ingår inte i denna inlämning.
 
-- Spring Boot
-- Spring Security (JWT)
+## Tekniker
+
+- Java / Spring Boot
+- Spring Security med JWT
 - PostgreSQL (Neon)
 - Docker
 - GitHub Actions
 - Koyeb
 
-## Authentication
+## Starta lokalt (utan Docker)
 
-- Login via `/request-token`
-- JWT används i `Authorization: Bearer <token>`
+Applikationen använder miljövariabler för databas och JWT-nycklar.
 
-## Run locally
+Starta med:
+mvn spring-boot:run
 
-1. Sätt miljövariabler (DB + JWT keys)
-2. `mvn spring-boot:run`
-3. Swagger: `/swagger-ui.html`
+Swagger UI finns på:
+http://localhost:8080/swagger-ui.html
 
-## Deployment
+## Köra med Docker
 
-- Docker image byggs via GitHub Actions
-- Deployad på Koyeb
+Bygg image:
+docker build -t springboot-social-api .
+
+Kör container (med samma miljövariabler som lokalt):
+docker run -p 8080:8080 springboot-social-api
+
+## CI / Deploy
+
+- Docker image byggs automatiskt via GitHub Actions
+- Samma image används vid deploy till Koyeb
+- Databas körs via Neon
