@@ -1,5 +1,7 @@
 package se.jensen.johan.springboot.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import java.util.NoSuchElementException;
 @Transactional
 public class PostService {
 
+    private static final Logger log = LoggerFactory.getLogger(PostService.class);
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
@@ -78,10 +81,14 @@ public class PostService {
                 .toList();
     }
 
+    // Logging på denna
     public PostResponseDto findById(Long id) {
         return postRepository.findById(id)
                 .map(this::toResponse)
-                .orElseThrow(() -> new NoSuchElementException("Post not found with id " + id));
+                .orElseThrow(() -> {
+                    log.warn("Post with id {} not found", id);
+                    return new NoSuchElementException("Post not found with id " + id);
+                });
     }
 
     // UPDATE - endast ägaren
