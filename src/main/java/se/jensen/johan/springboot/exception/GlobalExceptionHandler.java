@@ -11,10 +11,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+/**
+ * Handles exceptions for the application.
+ * Returns proper HTTP responses when errors occur.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-   
+    /**
+     * Handles validation errors.
+     *
+     * @param ex validation exception
+     * @return map with field errors
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationErrors(
             MethodArgumentNotValidException ex) {
@@ -32,7 +41,12 @@ public class GlobalExceptionHandler {
                 .body(errors);
     }
 
-
+    /**
+     * Handles cases where an element is not found.
+     *
+     * @param ex exception thrown when element is missing
+     * @return error message
+     */
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<String> handleNoSuchElementException(
             NoSuchElementException ex) {
@@ -42,6 +56,12 @@ public class GlobalExceptionHandler {
                 .body(ex.getMessage());
     }
 
+    /**
+     * Handles access denied errors.
+     *
+     * @param ex access denied exception
+     * @return error message
+     */
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<String> handleAccessDeniedException(
             AccessDeniedException ex) {
@@ -50,6 +70,4 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.FORBIDDEN)
                 .body(ex.getMessage());
     }
-
-
 }

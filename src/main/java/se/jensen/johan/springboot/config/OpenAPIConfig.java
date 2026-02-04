@@ -6,6 +6,11 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 
+
+/**
+ * Configuration class for API documentation.
+ * Used to set information and security for the API.
+ */
 @OpenAPIDefinition(
         info = @Info(
                 title = "API med JWT",
@@ -22,5 +27,5 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
         bearerFormat = "JWT"
 )
 public class OpenAPIConfig {
-    // ingen kod, endast annoteringar behövs
+
 }

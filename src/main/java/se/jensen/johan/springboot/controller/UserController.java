@@ -9,24 +9,34 @@ import org.springframework.web.bind.annotation.*;
 import se.jensen.johan.springboot.dto.UserRequestDto;
 import se.jensen.johan.springboot.dto.UserResponseDto;
 import se.jensen.johan.springboot.dto.UserWithPostsResponseDto;
-import se.jensen.johan.springboot.service.PostService;
 import se.jensen.johan.springboot.service.UserService;
 
 import java.util.List;
 
+/**
+ * Controller for users.
+ * Used to create, get, update and delete users.
+ */
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
-    private final PostService postService;
 
-    public UserController(UserService userService, PostService postService) {
+    /**
+     * Creates the controller.
+     *
+     * @param userService service used for users
+     */
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.postService = postService;
     }
 
-    // ✅ ADMIN ONLY
+    /**
+     * Returns all users (admin only).
+     *
+     * @return list of users
+     */
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
@@ -34,7 +44,12 @@ public class UserController {
         return ResponseEntity.ok().body(allUsers);
     }
 
-    // ✅ ADMIN ONLY
+    /**
+     * Returns one user by id (admin only).
+     *
+     * @param id id of the user
+     * @return the user
+     */
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getUser(@PathVariable Long id) {
@@ -42,13 +57,25 @@ public class UserController {
         return ResponseEntity.ok().body(userResponseDto);
     }
 
-    // ✅ Inloggad (permitAll i SecurityConfig låter denna gå utan login)
+    /**
+     * Creates a new user.
+     *
+     * @param request data for the new user
+     * @return created user
+     */
     @PostMapping
     public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody UserRequestDto request) {
         UserResponseDto created = userService.addUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    /**
+     * Updates an existing user.
+     *
+     * @param id      id of the user
+     * @param request new data for the user
+     * @return updated user
+     */
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDto> updateUser(
             @PathVariable Long id,
@@ -58,19 +85,36 @@ public class UserController {
         return ResponseEntity.ok().body(updated);
     }
 
+    /**
+     * Deletes a user.
+     *
+     * @param id id of the user
+     * @return empty response
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    /**
+     * Returns a user and the user's posts.
+     *
+     * @param id id of the user
+     * @return user with posts
+     */
     @GetMapping("/{id}/with-posts")
     public ResponseEntity<UserWithPostsResponseDto> getUserWithPosts(@PathVariable Long id) {
         UserWithPostsResponseDto response = userService.getUserWithPosts(id);
         return ResponseEntity.ok().body(response);
     }
 
-    // ✅ “Nuvarande användare” – bara inloggad användare
+    /**
+     * Returns the current user.
+     *
+     * @param authentication login info for the user
+     * @return the current user
+     */
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
     public ResponseEntity<UserResponseDto> getMe(Authentication authentication) {
@@ -78,6 +122,4 @@ public class UserController {
         UserResponseDto me = userService.findByUsername(username);
         return ResponseEntity.ok().body(me);
     }
-
-
 }

@@ -4,6 +4,17 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+/**
+ * DTO used when creating or updating a user.
+ *
+ * @param username         username for the user
+ * @param email            email address of the user
+ * @param password         password for the user
+ * @param role             role of the user
+ * @param displayName      display name of the user
+ * @param bio              short bio for the user
+ * @param profileImagePath path to profile image, can be null
+ */
 public record UserRequestDto(
 
         @NotBlank(message = "Username får inte vara tomt.")
@@ -29,6 +40,6 @@ public record UserRequestDto(
         @Size(max = 200, message = "Bio får max vara 200 tecken.")
         String bio,
 
-        String profileImagePath // kan vara null enligt övning
+        String profileImagePath
 ) {
 }

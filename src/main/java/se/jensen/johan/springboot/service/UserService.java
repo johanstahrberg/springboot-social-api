@@ -9,7 +9,7 @@ import se.jensen.johan.springboot.dto.PostResponseDto;
 import se.jensen.johan.springboot.dto.UserRequestDto;
 import se.jensen.johan.springboot.dto.UserResponseDto;
 import se.jensen.johan.springboot.dto.UserWithPostsResponseDto;
-import se.jensen.johan.springboot.mapper.userMapper;
+import se.jensen.johan.springboot.mapper.UserMapper;
 import se.jensen.johan.springboot.model.User;
 import se.jensen.johan.springboot.repository.UserRepository;
 
@@ -17,22 +17,38 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+/**
+ * Service for users.
+ * Used to create, read, update and delete users.
+ */
 @Service
 @Transactional
 public class UserService {
 
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
-    private final userMapper userMapper;
+    private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, userMapper userMapper, PasswordEncoder passwordEncoder) {
+    /**
+     * Creates the service.
+     *
+     * @param userRepository  repository for users
+     * @param userMapper      mapper used to convert between user and DTO
+     * @param passwordEncoder encoder used for passwords
+     */
+    public UserService(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
     }
 
-
+    /**
+     * Creates a new user.
+     *
+     * @param userDto data for the user
+     * @return created user
+     */
     public UserResponseDto addUser(UserRequestDto userDto) {
         User user = userMapper.fromDto(userDto);
 
@@ -50,9 +66,14 @@ public class UserService {
         }
 
         User savedUser = userRepository.save(user);
-        return se.jensen.johan.springboot.mapper.userMapper.toDto(savedUser);
+        return UserMapper.toDto(savedUser);
     }
 
+    /**
+     * Returns all users.
+     *
+     * @return list of users
+     */
     public List<UserResponseDto> getAllUsers() {
         List<User> users = userRepository.findAll();
 
@@ -69,7 +90,12 @@ public class UserService {
                 .toList();
     }
 
-    // Loggning
+    /**
+     * Returns one user by id.
+     *
+     * @param id id of the user
+     * @return the user
+     */
     public UserResponseDto getById(Long id) {
         Optional<User> opt = userRepository.findById(id);
 
@@ -78,18 +104,23 @@ public class UserService {
             throw new NoSuchElementException("User not found with id: " + id);
         }
 
-        return se.jensen.johan.springboot.mapper.userMapper.toDto(opt.get());
+        return UserMapper.toDto(opt.get());
     }
 
-    /* =========================
-       UPDATE
-       ========================= */
+    /**
+     * Updates an existing user.
+     *
+     * @param id  id of the user
+     * @param dto new data for the user
+     * @return updated user
+     */
     public UserResponseDto update(Long id, UserRequestDto dto) {
 
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException(
-                        "Ingen user i databasen med id: " + id
-                ));
+                .orElseThrow(() -> {
+                    log.warn("User with id {} not found", id);
+                    return new NoSuchElementException("Ingen user i databasen med id: " + id);
+                });
 
         user.setUsername(dto.username());
         user.setEmail(dto.email());
@@ -100,31 +131,38 @@ public class UserService {
         user.setBio(dto.bio());
 
         User saved = userRepository.save(user);
-        return se.jensen.johan.springboot.mapper.userMapper.toDto(saved);
+        return UserMapper.toDto(saved);
     }
 
-    /* =========================
-       DELETE
-       ========================= */
+    /**
+     * Deletes a user by id.
+     *
+     * @param id id of the user
+     */
     public void delete(Long id) {
 
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException(
-                        "Ingen user i databasen med id: " + id
-                ));
+                .orElseThrow(() -> {
+                    log.warn("User with id {} not found", id);
+                    return new NoSuchElementException("Ingen user i databasen med id: " + id);
+                });
 
         userRepository.deleteById(user.getId());
     }
 
-    /* =========================
-       USER WITH POSTS (JOIN FETCH)
-       ========================= */
+    /**
+     * Returns a user and the user's posts.
+     *
+     * @param id id of the user
+     * @return user with posts
+     */
     public UserWithPostsResponseDto getUserWithPosts(Long id) {
 
         User user = userRepository.findUserWithPosts(id)
-                .orElseThrow(() -> new NoSuchElementException(
-                        "User not found with id " + id
-                ));
+                .orElseThrow(() -> {
+                    log.warn("User with id {} not found", id);
+                    return new NoSuchElementException("User not found with id " + id);
+                });
 
         List<PostResponseDto> posts = user.getPosts().stream()
                 .map(p -> new PostResponseDto(
@@ -135,19 +173,23 @@ public class UserService {
                 ))
                 .toList();
 
-        UserResponseDto userDto = se.jensen.johan.springboot.mapper.userMapper.toDto(user);
+        UserResponseDto userDto = UserMapper.toDto(user);
 
         return new UserWithPostsResponseDto(userDto, posts);
     }
 
-    /* =========================
-   READ – findByUsername
-   ========================= */
+    /**
+     * Finds a user by username.
+     *
+     * @param username username to search for
+     * @return the user
+     */
     public UserResponseDto findByUsername(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new NoSuchElementException("Ingen user i databasen med username: " + username));
-        return se.jensen.johan.springboot.mapper.userMapper.toDto(user); // eller din toResponse(user)
+                .orElseThrow(() -> {
+                    log.warn("User not found. username={}", username);
+                    return new NoSuchElementException("Ingen user i databasen med username: " + username);
+                });
+        return UserMapper.toDto(user);
     }
-
-
 }

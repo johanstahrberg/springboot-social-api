@@ -12,7 +12,10 @@ import se.jensen.johan.springboot.dto.LoginRequestDto;
 import se.jensen.johan.springboot.dto.LoginResponseDto;
 import se.jensen.johan.springboot.service.TokenService;
 
-
+/**
+ * Controller used for login.
+ * Checks username and password and returns a JWT token.
+ */
 @RestController
 @RequestMapping("/request-token")
 public class AuthController {
@@ -20,12 +23,24 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
 
+    /**
+     * Creates the controller with needed objects.
+     *
+     * @param authenticationManager used to check login details
+     * @param tokenService          used to create JWT tokens
+     */
     public AuthController(AuthenticationManager authenticationManager,
                           TokenService tokenService) {
         this.authenticationManager = authenticationManager;
         this.tokenService = tokenService;
     }
 
+    /**
+     * Logs in a user and returns a JWT token if the login is correct.
+     *
+     * @param loginRequest username and password from the client
+     * @return response that contains a JWT token
+     */
     @PostMapping
     public ResponseEntity<LoginResponseDto> token(
             @RequestBody LoginRequestDto loginRequest) {
@@ -41,6 +56,4 @@ public class AuthController {
 
         return ResponseEntity.ok(new LoginResponseDto(token));
     }
-
-
 }

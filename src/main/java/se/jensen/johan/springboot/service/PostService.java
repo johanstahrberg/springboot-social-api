@@ -17,6 +17,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * Service for posts.
+ * Used to create, read, update and delete posts.
+ */
 @Service
 @Transactional
 public class PostService {
@@ -25,11 +29,23 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
+    /**
+     * Creates the service.
+     *
+     * @param postRepository repository for posts
+     * @param userRepository repository for users
+     */
     public PostService(PostRepository postRepository, UserRepository userRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
     }
 
+    /**
+     * Converts a Post to a response DTO.
+     *
+     * @param post post entity
+     * @return post response DTO
+     */
     private PostResponseDto toResponse(Post post) {
         return new PostResponseDto(
                 post.getId(),
@@ -39,22 +55,39 @@ public class PostService {
         );
     }
 
+    /**
+     * Returns the current user based on authentication.
+     *
+     * @param auth authentication info
+     * @return current user
+     */
     private User getCurrentUser(Authentication auth) {
-        // Viktigt: detta kräver att du har UserRepository.findByUsername(...)
         return userRepository.findByUsername(auth.getName())
                 .orElseThrow(() -> new NoSuchElementException("User not found: " + auth.getName()));
     }
 
+    /**
+     * Checks that the current user owns the post.
+     *
+     * @param post post to check
+     * @param auth authentication info
+     */
     private void assertOwner(Post post, Authentication auth) {
         String currentUsername = auth.getName();
-        String postOwnerUsername = post.getUser().getUsername(); // kräver getUsername() i User
+        String postOwnerUsername = post.getUser().getUsername();
 
         if (!postOwnerUsername.equals(currentUsername)) {
             throw new AccessDeniedException("You can only modify your own posts");
         }
     }
 
-    // CREATE - skapa post för inloggad användare
+    /**
+     * Creates a new post for the logged in user.
+     *
+     * @param auth    authentication info
+     * @param postDto data for the post
+     * @return created post
+     */
     public PostResponseDto createPost(Authentication auth, PostRequestDto postDto) {
         User user = getCurrentUser(auth);
 
@@ -67,21 +100,35 @@ public class PostService {
         return toResponse(savedPost);
     }
 
-    // Global feed - nyast först
+    /**
+     * Returns all posts sorted by creation time.
+     *
+     * @return list of posts
+     */
     public List<PostResponseDto> findAll() {
         return postRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-    // User wall - nyast först
+    /**
+     * Returns all posts for a user sorted by creation time.
+     *
+     * @param userId id of the user
+     * @return list of posts
+     */
     public List<PostResponseDto> findWall(Long userId) {
         return postRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-    // Logging på denna
+    /**
+     * Returns one post by id.
+     *
+     * @param id id of the post
+     * @return the post
+     */
     public PostResponseDto findById(Long id) {
         return postRepository.findById(id)
                 .map(this::toResponse)
@@ -91,10 +138,20 @@ public class PostService {
                 });
     }
 
-    // UPDATE - endast ägaren
+    /**
+     * Updates a post (owner only).
+     *
+     * @param id   id of the post
+     * @param auth authentication info
+     * @param dto  new data for the post
+     * @return updated post
+     */
     public PostResponseDto update(Long id, Authentication auth, PostRequestDto dto) {
         Post existing = postRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Post not found with id " + id));
+                .orElseThrow(() -> {
+                    log.warn("Post with id {} not found", id);
+                    return new NoSuchElementException("Post not found with id " + id);
+                });
 
         assertOwner(existing, auth);
 
@@ -103,10 +160,18 @@ public class PostService {
         return toResponse(updated);
     }
 
-    // DELETE - endast ägaren
+    /**
+     * Deletes a post (owner only).
+     *
+     * @param id   id of the post
+     * @param auth authentication info
+     */
     public void delete(Long id, Authentication auth) {
         Post existing = postRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Post not found with id " + id));
+                .orElseThrow(() -> {
+                    log.warn("Post with id {} not found", id);
+                    return new NoSuchElementException("Post not found with id " + id);
+                });
 
         assertOwner(existing, auth);
 
