@@ -83,4 +83,14 @@ public class PostController {
         PostResponseDto updated = postService.update(id, auth, request);
         return ResponseEntity.ok(updated);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            Authentication auth) {
+
+        postService.delete(id, auth);
+        return ResponseEntity.noContent().build();
+    }
+
 }

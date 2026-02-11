@@ -6,9 +6,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import se.jensen.johan.springboot.dto.PostResponseDto;
 import se.jensen.johan.springboot.dto.UserRequestDto;
 import se.jensen.johan.springboot.dto.UserResponseDto;
 import se.jensen.johan.springboot.dto.UserWithPostsResponseDto;
+import se.jensen.johan.springboot.service.PostService;
 import se.jensen.johan.springboot.service.UserService;
 
 import java.util.List;
@@ -22,14 +24,17 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final PostService postService;
 
     /**
      * Creates the controller.
      *
      * @param userService service used for users
+     * @param postService service used for posts
      */
-    public UserController(UserService userService) {
+    public UserController(UserService userService, PostService postService) {
         this.userService = userService;
+        this.postService = postService;
     }
 
     /**
@@ -107,6 +112,18 @@ public class UserController {
     public ResponseEntity<UserWithPostsResponseDto> getUserWithPosts(@PathVariable Long id) {
         UserWithPostsResponseDto response = userService.getUserWithPosts(id);
         return ResponseEntity.ok().body(response);
+    }
+
+    /**
+     * Returns the user's posts (wall) sorted by creation time (newest first).
+     *
+     * @param id id of the user
+     * @return list of posts
+     */
+    @GetMapping("/{id}/posts")
+    public ResponseEntity<List<PostResponseDto>> getUserPosts(@PathVariable Long id) {
+        List<PostResponseDto> posts = postService.findWall(id);
+        return ResponseEntity.ok().body(posts);
     }
 
     /**
