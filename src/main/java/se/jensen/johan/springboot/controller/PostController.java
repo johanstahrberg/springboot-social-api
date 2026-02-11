@@ -84,6 +84,13 @@ public class PostController {
         return ResponseEntity.ok(updated);
     }
 
+    /**
+     * Deletes an existing post (owner only).
+     *
+     * @param id   id of the post
+     * @param auth logged in user
+     * @return empty response
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable Long id,
